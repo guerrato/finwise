@@ -1,1 +1,2 @@
-# joseph
+# Joseph
+My financial administration app

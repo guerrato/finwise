@@ -1,0 +1,29 @@
+{
+  "name": "joseph",
+  "version": "2.0.0",
+  "description": "My financial administration app",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/guerrato/joseph.git"
+  },
+  "keywords": [
+    "finance",
+    "economy"
+  ],
+  "author": {
+    "name": "Pedro Guerrato",
+    "email": "pguerrato@gmail.com"
+  },
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/guerrato/joseph/issues"
+  },
+  "homepage": "https://github.com/guerrato/joseph#readme",
+  "workspaces": [
+    "packages/*"
+  ]
+}
