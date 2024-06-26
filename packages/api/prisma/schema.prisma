@@ -30,6 +30,10 @@ model Account {
   name            String
   currency        String
   UserAccountRole UserAccountRole[]
+  Bank            Bank[]
+  Outflow         Outflow[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 
   @@map("accounts")
 }
@@ -47,8 +51,239 @@ model UserAccountRole {
   @@map("userAccountRoles")
 }
 
+model Bank {
+  id                    String                  @id @default(uuid()) @db.Uuid
+  name                  String
+  description           String
+  Inflow                Inflow[]
+  accountId             String
+  account               Account                 @relation(fields: [accountId], references: [id])
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  Card                  Card[]
+  OutflowPaymentDetails OutflowPaymentDetails[]
+
+  @@map("banks")
+}
+
+model Inflow {
+  id                String   @id @default(uuid()) @db.Uuid
+  amount            Float
+  datetime          DateTime
+  source            String?
+  type              InflowType
+  accountId         String
+  destinationBankId String?
+  destinationBank   Bank?    @relation(fields: [destinationBankId], references: [id])
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("inflows")
+}
+
+model Outflow {
+  id                    String                  @id @default(uuid()) @db.Uuid
+  amount                Float
+  datetime              DateTime                @default(now())
+  description           String?
+  cfe12741Tax           String?
+  cfeNumber             String?
+  cofinsStTotal         String?
+  cofinsTotal           String?
+  icmsTotal             String?
+  pisStTotal            String?
+  pisTotal              String?
+  receiptNumber         String?
+  paymentStatus         OutflowPaymentStatus    @default(PENDING)
+  processStatus         OutflowProcessStatus    @default(PENDING)
+  accountId             String
+  account               Account                 @relation(fields: [accountId], references: [id])
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  OutflowItem           OutflowItem[]
+  OutflowInstallment    OutflowInstallment[]
+  OutflowSeller         OutflowSeller[]
+  OutflowPaymentDetails OutflowPaymentDetails[]
+
+  @@map("outflows")
+}
+
+model OutflowPaymentDetails {
+  id            String        @id @default(uuid()) @db.Uuid
+  paymentMethod PaymentMethod
+  cardId        String?
+  card          Card?         @relation(fields: [cardId], references: [id])
+  bankId        String?
+  bank          Bank?         @relation(fields: [bankId], references: [id])
+  outflowId     String
+  outflow       Outflow       @relation(fields: [outflowId], references: [id])
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("outflowPaymentDetails")
+}
+
+model OutflowItem {
+  id                      String   @id @default(uuid()) @db.Uuid
+  addicionalInfo          String?
+  calculusRule            String?
+  cfop                    String?
+  cofinsAliquotPercentage String?
+  cofinsBasePrice         String?
+  cofinsCode              String?
+  cofinsIncentive         String?
+  cofinsPrice             String?
+  commentToRevenue        String?
+  description             String?
+  discountValue           String?
+  grossValue              String?
+  gtin                    String?
+  icmsTaxCode             String?
+  ncm                     String?
+  netValueIcmsTax         String?
+  number                  Int?
+  pisAliquotPercentage    String?
+  pisBasePrice            String?
+  pisCode                 String?
+  pisPrice                String?
+  price12741              String?
+  productOriginCode       String?
+  quantity                String?
+  sellerInternalCode      String?
+  unitOfMeasurement       String?
+  unitaryValue            String?
+  outflowId               String
+  outflow                 Outflow  @relation(fields: [outflowId], references: [id])
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  @@map("outflowItems")
+}
+
+model OutflowInstallment {
+  id          String   @id @default(uuid()) @db.Uuid
+  amount      Float
+  datetime    DateTime
+  description String?
+  outflowId   String
+  outflow     Outflow  @relation(fields: [outflowId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("outflowInstallments")
+}
+
+model OutflowSeller {
+  id           String   @id @default(uuid()) @db.Uuid
+  address      String?
+  city         String?
+  cnpj         String?
+  companyName  String?
+  fantasyName  String
+  ie           String?
+  im           String?
+  neighborhood String?
+  stateCode    String?
+  zipCode      String?
+  outflowId    String
+  outflow      Outflow  @relation(fields: [outflowId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("outflowSellers")
+}
+
+model Card {
+  id                    String                  @id @default(uuid()) @db.Uuid
+  name                  String
+  type                  CardType
+  description           String?
+  network               CardNetwork
+  issuerBankId          String
+  issuerBank            Bank                    @relation(fields: [issuerBankId], references: [id])
+  dueDay                Int?                    @db.SmallInt
+  closingDay            Int?                    @db.SmallInt
+  limit                 Float?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  CreditCardInvoice     CreditCardInvoice[]
+  OutflowPaymentDetails OutflowPaymentDetails[]
+
+  @@map("cards")
+}
+
+model CreditCardInvoice {
+  id          String   @id @default(uuid()) @db.Uuid
+  amount      Float
+  dueDate     DateTime
+  paymentDate DateTime
+  cardId      String
+  card        Card     @relation(fields: [cardId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("creditCardInvoices")
+}
+
 enum UserRole {
   OWNER
   MANAGER
   VIEWER
+}
+
+enum InflowType {
+  SALARY
+  BONUS
+  REIMBURSEMENT
+  REVENUE
+  OTHER
+}
+
+enum InflowStatus {
+  PENDING
+  RECEIVED
+}
+
+enum OutflowProcessStatus {
+  PENDING
+  PROCESSED
+  ERROR
+}
+
+enum OutflowPaymentStatus {
+  PENDING
+  PAID
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  MONEY
+  PIX
+  TED
+  DOC
+  BOLETO
+  TRANSFER
+  DEPOSIT
+}
+
+enum CardType {
+  CREDIT
+  DEBIT
+}
+
+enum CardNetwork {
+  VISA
+  MASTERCARD
+  ELO
+  AMERICAN_EXPRESS
+  HIPERCARD
+  DINERS_CLUB
+  DISCOVER
+  JCB
+  AURA
+  SODEXO
+  ALELO
+  TICKET
+  VR
 }

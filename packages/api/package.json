@@ -26,6 +26,10 @@
     "url": "https://github.com/guerrato/joseph/issues"
   },
   "homepage": "https://github.com/guerrato/joseph#readme",
+  "dependencies": {
+    "argon2": "^0.40.3",
+    "jsonwebtoken": "^9.0.2"
+  },
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "@types/jsonwebtoken": "^9.0.6",
@@ -36,9 +40,5 @@
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
-  },
-  "dependencies": {
-    "argon2": "^0.40.3",
-    "jsonwebtoken": "^9.0.2"
   }
 }
