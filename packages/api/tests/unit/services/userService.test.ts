@@ -17,4 +17,10 @@ describe('User Service validations', () => {
   test('Should throw error for invalid name', async () => {
     expect(false).toBe(true)
   })
+  test('Should throw error for invalid name', async () => {
+    expect(false).toBe(true)
+  })
+  test('Should return password when created', async () => {
+    expect(false).toBe(true)
+  })
 })

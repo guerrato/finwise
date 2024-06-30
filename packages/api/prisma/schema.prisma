@@ -18,6 +18,7 @@ model User {
   name            String
   email           String            @unique
   password        String
+  verified        Boolean           @default(false)
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   UserAccountRole UserAccountRole[]
@@ -28,7 +29,7 @@ model User {
 model Account {
   id              String            @id @default(uuid()) @db.Uuid
   name            String
-  currency        String
+  currency        Currency
   UserAccountRole UserAccountRole[]
   Bank            Bank[]
   Outflow         Outflow[]
@@ -40,11 +41,11 @@ model Account {
 
 model UserAccountRole {
   id        String   @id @default(uuid()) @db.Uuid
-  userId    String
+  userId    String   @db.Uuid
   user      User     @relation(fields: [userId], references: [id])
-  accountId String
+  accountId String   @db.Uuid
   account   Account  @relation(fields: [accountId], references: [id])
-  type      UserRole
+  role      UserRole
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -56,7 +57,7 @@ model Bank {
   name                  String
   description           String
   Inflow                Inflow[]
-  accountId             String
+  accountId             String                  @db.Uuid
   account               Account                 @relation(fields: [accountId], references: [id])
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
@@ -67,16 +68,16 @@ model Bank {
 }
 
 model Inflow {
-  id                String   @id @default(uuid()) @db.Uuid
+  id                String     @id @default(uuid()) @db.Uuid
   amount            Float
   datetime          DateTime
   source            String?
   type              InflowType
   accountId         String
-  destinationBankId String?
-  destinationBank   Bank?    @relation(fields: [destinationBankId], references: [id])
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  destinationBankId String?    @db.Uuid
+  destinationBank   Bank?      @relation(fields: [destinationBankId], references: [id])
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   @@map("inflows")
 }
@@ -96,7 +97,7 @@ model Outflow {
   receiptNumber         String?
   paymentStatus         OutflowPaymentStatus    @default(PENDING)
   processStatus         OutflowProcessStatus    @default(PENDING)
-  accountId             String
+  accountId             String                  @db.Uuid
   account               Account                 @relation(fields: [accountId], references: [id])
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
@@ -111,11 +112,11 @@ model Outflow {
 model OutflowPaymentDetails {
   id            String        @id @default(uuid()) @db.Uuid
   paymentMethod PaymentMethod
-  cardId        String?
+  cardId        String?       @db.Uuid
   card          Card?         @relation(fields: [cardId], references: [id])
-  bankId        String?
+  bankId        String?       @db.Uuid
   bank          Bank?         @relation(fields: [bankId], references: [id])
-  outflowId     String
+  outflowId     String        @db.Uuid
   outflow       Outflow       @relation(fields: [outflowId], references: [id])
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
@@ -152,7 +153,7 @@ model OutflowItem {
   sellerInternalCode      String?
   unitOfMeasurement       String?
   unitaryValue            String?
-  outflowId               String
+  outflowId               String   @db.Uuid
   outflow                 Outflow  @relation(fields: [outflowId], references: [id])
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
@@ -165,7 +166,7 @@ model OutflowInstallment {
   amount      Float
   datetime    DateTime
   description String?
-  outflowId   String
+  outflowId   String   @db.Uuid
   outflow     Outflow  @relation(fields: [outflowId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -185,7 +186,7 @@ model OutflowSeller {
   neighborhood String?
   stateCode    String?
   zipCode      String?
-  outflowId    String
+  outflowId    String   @db.Uuid
   outflow      Outflow  @relation(fields: [outflowId], references: [id])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -199,7 +200,7 @@ model Card {
   type                  CardType
   description           String?
   network               CardNetwork
-  issuerBankId          String
+  issuerBankId          String                  @db.Uuid
   issuerBank            Bank                    @relation(fields: [issuerBankId], references: [id])
   dueDay                Int?                    @db.SmallInt
   closingDay            Int?                    @db.SmallInt
@@ -217,7 +218,7 @@ model CreditCardInvoice {
   amount      Float
   dueDate     DateTime
   paymentDate DateTime
-  cardId      String
+  cardId      String   @db.Uuid
   card        Card     @relation(fields: [cardId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -286,4 +287,175 @@ enum CardNetwork {
   ALELO
   TICKET
   VR
+}
+
+enum Currency {
+  AFN
+  ALL
+  DZD
+  USD
+  EUR
+  AOA
+  XCD
+  ARS
+  AMD
+  AWG
+  AUD
+  AZN
+  BSD
+  BHD
+  BDT
+  BBD
+  BYN
+  BZD
+  XOF
+  BMD
+  BTN
+  INR
+  BOB
+  BOV
+  BAM
+  BWP
+  NOK
+  BRL
+  BND
+  BGN
+  BIF
+  CVE
+  KHR
+  XAF
+  CAD
+  KYD
+  CLF
+  CLP
+  CNY
+  COP
+  COU
+  KMF
+  CDF
+  NZD
+  CRC
+  CUC
+  CUP
+  ANG
+  CZK
+  DKK
+  DJF
+  DOP
+  EGP
+  SVC
+  ERN
+  ETB
+  FKP
+  FJD
+  XPF
+  GMD
+  GEL
+  GHS
+  GIP
+  GTQ
+  GBP
+  GNF
+  GYD
+  HTG
+  HNL
+  HKD
+  HUF
+  ISK
+  IDR
+  XDR
+  IRR
+  IQD
+  ILS
+  JMD
+  JPY
+  JOD
+  KZT
+  KES
+  KPW
+  KRW
+  KWD
+  KGS
+  LAK
+  LBP
+  LSL
+  ZAR
+  LRD
+  LYD
+  CHF
+  MOP
+  MGA
+  MWK
+  MYR
+  MVR
+  MRU
+  MUR
+  XUA
+  MXN
+  MXV
+  MDL
+  MNT
+  MAD
+  MZN
+  MMK
+  NAD
+  NPR
+  NIO
+  NGN
+  OMR
+  PKR
+  PAB
+  PGK
+  PYG
+  PEN
+  PHP
+  PLN
+  QAR
+  MKD
+  RON
+  RUB
+  RWF
+  SHP
+  WST
+  STN
+  SAR
+  RSD
+  SCR
+  SLE
+  SGD
+  XSU
+  SBD
+  SOS
+  SSP
+  LKR
+  SDG
+  SRD
+  SZL
+  SEK
+  CHE
+  CHW
+  SYP
+  TWD
+  TJS
+  TZS
+  THB
+  TOP
+  TTD
+  TND
+  TRY
+  TMT
+  UGX
+  UAH
+  AED
+  USN
+  UYI
+  UYU
+  UZS
+  VUV
+  VEF
+  VED
+  VND
+  YER
+  ZMW
+  ZWL
 }

@@ -20,8 +20,8 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
-    "skipLibCheck": true,
+    "skipLibCheck": true
   },
   "exclude": ["node_modules"],
-  "include": ["./src/**/*.ts", "./src/**/*", "./src/**/*.json", "./tests/**/*.ts"]
+  "include": ["./src/**/*.ts", "./src/**/*", "./src/**/*.json", "./tests/**/*.ts", "./prisma/**/*.ts"]
 }
