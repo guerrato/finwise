@@ -1,6 +1,6 @@
 import { autoInjectable, inject } from 'tsyringe'
 import { Prisma, User } from '@prisma/client'
-import { DbContext } from 'lib/dbContext'
+import { DbProvider } from 'providers/db.provider'
 import { generateHash } from 'utils/security'
 import { isEmpty } from 'utils/string'
 
@@ -12,8 +12,8 @@ export interface IUserRepository {
 
 @autoInjectable()
 export class UserRepository implements IUserRepository {
-  constructor(@inject('DbContext') private readonly dbContext: DbContext) {}
-  
+  constructor(@inject('DbProvider') private readonly dbContext: DbProvider) {}
+
   async create(user: Prisma.UserCreateInput): Promise<User> {
     if (isEmpty(process.env.SECRET_KEY)) {
       throw new Error('RPS_VAR_MISSING: Internal Error: Variables missing')
@@ -33,7 +33,6 @@ export class UserRepository implements IUserRepository {
       },
     })
   }
-
 
   async getUserByEmail(email: string): Promise<User> {
     return await this.dbContext.prisma.user.findUniqueOrThrow({

@@ -3,6 +3,7 @@ import { CreateUserInput, User, UserSchema } from 'models/user.model'
 import { formatEmail, formatPersonName, isCompleteName, isEmail } from 'utils/string'
 import { IUserRepository } from 'repositories/user.repository'
 import { assign } from 'models/schema.model'
+import { EmailProvider } from 'providers/email.provider'
 
 export interface IUserService {
   create(user: CreateUserInput): Promise<User>
@@ -10,7 +11,10 @@ export interface IUserService {
 
 @autoInjectable()
 export class UserService implements IUserService {
-  constructor(@inject('IUserRepository') private readonly userRepository: IUserRepository) {}
+  constructor(
+    @inject('IUserRepository') private readonly userRepository: IUserRepository,
+    @inject('IEmailProvider') private readonly emailProvider: EmailProvider
+  ) {}
 
   async create(user: CreateUserInput): Promise<User> {
     try {
@@ -18,6 +22,12 @@ export class UserService implements IUserService {
 
       if (!isEmail(email)) {
         throw new Error('Invalid email')
+      }
+
+      const existingUser = await this.userRepository.getUserByEmail(email)
+
+      if (existingUser) {
+        throw new Error('User already exists')
       }
 
       if (!isCompleteName(name)) {
@@ -29,8 +39,8 @@ export class UserService implements IUserService {
 
       const createdUser = await this.userRepository.create({ name, email, password: this.createPassword() })
 
+      await this.emailProvider.sendVerification(createdUser)
       return assign<User, typeof createdUser>(createdUser, UserSchema)
-
     } catch (error) {
       throw new Error('Internal Error: Something went wrong. Please try again later.')
     }

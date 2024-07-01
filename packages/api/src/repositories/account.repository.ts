@@ -1,6 +1,6 @@
 import { autoInjectable, inject } from 'tsyringe'
 import { Prisma, Account } from '@prisma/client'
-import { DbContext } from 'lib/dbContext'
+import { DbProvider } from 'providers/db.provider'
 
 export interface IAccountRepository {
   create(account: Prisma.AccountCreateInput, ownerId: string): Promise<Account>
@@ -8,8 +8,8 @@ export interface IAccountRepository {
 
 @autoInjectable()
 export class AccountRepository implements IAccountRepository {
-  constructor(@inject('DbContext') private readonly dbContext: DbContext) {}
-  
+  constructor(@inject('DbProvider') private readonly dbContext: DbProvider) {}
+
   async create(account: Prisma.AccountCreateInput, ownerId: string): Promise<Account> {
     account.UserAccountRole = {
       create: {
@@ -25,5 +25,4 @@ export class AccountRepository implements IAccountRepository {
       data: account,
     })
   }
-
 }

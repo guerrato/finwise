@@ -12,7 +12,7 @@ export const isCompleteName = (name: string): boolean => {
 
 export const formatPersonName = (name: string): string => {
   const words = name.split(' ')
-  const formattedName = words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+  const formattedName = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
   return formattedName
 }
 
@@ -35,3 +35,6 @@ export const isEmpty = <T>(str: T): str is IsEmpty<T> => {
 
   return false
 }
+
+export const renderTemplate = (template: string, data: Record<string, string>): string =>
+  template.replace(/<%([^%>]+)?%>/g, (_, key) => data[key] || '')
