@@ -22,6 +22,6 @@
     "noImplicitOverride": true,
     "skipLibCheck": true
   },
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "tsconfig.json", "dist"],
   "include": ["./src/**/*.ts", "./src/**/*", "./src/**/*.json", "./tests/**/*.ts", "./prisma/**/*.ts"]
 }
