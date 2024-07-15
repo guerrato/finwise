@@ -1,9 +1,9 @@
 import { autoInjectable, inject } from 'tsyringe'
-import { assign } from 'models/schema.model'
-import { Account, AccountSchema, CreateAccountInput } from 'models/account.model'
 import { IAccountRepository } from 'repositories/account.repository'
 import { IUserRepository } from 'repositories/user.repository'
 import { isEmpty } from 'utils/string'
+import { map } from 'utils/dto'
+import { Account, CreateAccountInput } from 'dtos/account.dto'
 
 export interface IAccountService {
   create(account: CreateAccountInput): Promise<Account>
@@ -18,7 +18,7 @@ export class AccountService implements IAccountService {
 
   async create(account: CreateAccountInput): Promise<Account> {
     try {
-      const { ownerId, ...data } = account
+      const { ownerId } = account
 
       const user = await this.userRepository.getUserById(ownerId)
 
@@ -26,8 +26,8 @@ export class AccountService implements IAccountService {
         throw new Error('User not found')
       }
 
-      const createdAccount = await this.accountRepository.create(data, user.id)
-      return assign<Account, typeof createdAccount>(createdAccount, AccountSchema)
+      const createdAccount = await this.accountRepository.create(account)
+      return map(createdAccount, Account)
     } catch (error) {
       throw new Error('Internal Error: Something went wrong. Please try again later.')
     }

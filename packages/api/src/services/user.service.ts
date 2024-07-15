@@ -1,9 +1,9 @@
 import { autoInjectable, inject } from 'tsyringe'
-import { CreateUserInput, User, UserSchema } from 'models/user.model'
 import { formatEmail, formatPersonName, isCompleteName, isEmail } from 'utils/string'
 import { IUserRepository } from 'repositories/user.repository'
-import { assign } from 'models/schema.model'
 import { EmailProvider } from 'providers/email.provider'
+import { CreateUserInput, User } from 'dtos/user.dto'
+import { map } from 'utils/dto'
 
 export interface IUserService {
   create(user: CreateUserInput): Promise<User>
@@ -40,7 +40,7 @@ export class UserService implements IUserService {
       const createdUser = await this.userRepository.create({ name, email, password: this.createPassword() })
 
       await this.emailProvider.sendVerification(createdUser)
-      return assign<User, typeof createdUser>(createdUser, UserSchema)
+      return map(createdUser, User)
     } catch (error) {
       throw new Error('Internal Error: Something went wrong. Please try again later.')
     }
