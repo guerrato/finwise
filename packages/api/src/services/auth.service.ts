@@ -38,5 +38,5 @@ export class AuthService implements IAuthService {
     } catch (error) {
       throw new Error('Internal Error: Something went wrong. Please try again later.')
     }
-  }
+  }      
 }

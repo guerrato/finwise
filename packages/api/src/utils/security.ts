@@ -1,5 +1,6 @@
 import { hash, verify as argonVerify } from 'argon2'
-import { JwtPayload, sign, verify as jwtVerify } from 'jsonwebtoken'
+import * as jwt from 'jsonwebtoken'
+// import { JwtPayload, sign, verify as jwtVerify } from 'jsonwebtoken'
 import { isEmpty } from './string'
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto'
 
@@ -26,9 +27,9 @@ export const verifyHash = async (hash: string, password: string, secretKey: stri
   return await argonVerify(hash, password, { secret: Buffer.from(secretKey) })
 }
 
-export const verifyToken = (token: string, secret: string): JwtPayload | undefined => {
+export const getTokenPayload = (token: string, secret: string): jwt.JwtPayload | undefined => {
   try {
-    return jwtVerify(token, secret) as JwtPayload
+    return jwt.verify(token, secret) as jwt.JwtPayload
   } catch (error) {
     return undefined
   }
@@ -42,7 +43,7 @@ export const createToken = (payload: TokenPayload, secret: string): string => {
   const now = Math.floor(Date.now() / 1000)
   const exp = now + 60 * 60
 
-  return sign({ ...payload, iat: now, nbf: now, exp, iss: process.env.AÍPI_DOMAIN }, secret)
+  return jwt.sign({ ...payload, iat: now, nbf: now, exp, iss: process.env.AÍPI_DOMAIN }, secret)
 }
 
 export const validatePassword = (password: string): PasswordValidation => {

@@ -31,13 +31,14 @@ model Account {
   id              String            @id @default(uuid()) @db.Uuid
   name            String
   currency        Currency
-  ownerId         String            @db.Uuid
-  owner           User              @relation(fields: [ownerId], references: [id])
-  UserAccountRole UserAccountRole[]
-  Bank            Bank[]
-  Outflow         Outflow[]
+  createdById     String            @db.Uuid
+  createdBy       User              @relation(fields: [createdById], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
+  userAccountRoles UserAccountRole[]
+  Bank            Bank[]
+  Outflow         Outflow[]
+  Inflow          Inflow[]
 
   @@map("accounts")
 }
@@ -45,9 +46,9 @@ model Account {
 model UserAccountRole {
   id        String   @id @default(uuid()) @db.Uuid
   userId    String   @db.Uuid
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   accountId String   @db.Uuid
-  account   Account  @relation(fields: [accountId], references: [id])
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   role      UserRole
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -58,10 +59,10 @@ model UserAccountRole {
 model Bank {
   id                    String                  @id @default(uuid()) @db.Uuid
   name                  String
-  description           String
+  description           String?
   Inflow                Inflow[]
   accountId             String                  @db.Uuid
-  account               Account                 @relation(fields: [accountId], references: [id])
+  account               Account                 @relation(fields: [accountId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
   Card                  Card[]
@@ -76,7 +77,9 @@ model Inflow {
   datetime          DateTime
   source            String?
   type              InflowType
-  accountId         String
+  tithable          Boolean    @default(true)
+  accountId         String     @db.Uuid
+  account           Account    @relation(fields: [accountId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   destinationBankId String?    @db.Uuid
   destinationBank   Bank?      @relation(fields: [destinationBankId], references: [id])
   createdAt         DateTime   @default(now())
@@ -101,7 +104,7 @@ model Outflow {
   paymentStatus         OutflowPaymentStatus    @default(PENDING)
   processStatus         OutflowProcessStatus    @default(PENDING)
   accountId             String                  @db.Uuid
-  account               Account                 @relation(fields: [accountId], references: [id])
+  account               Account                 @relation(fields: [accountId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
   OutflowItem           OutflowItem[]
@@ -116,11 +119,11 @@ model OutflowPaymentDetails {
   id            String        @id @default(uuid()) @db.Uuid
   paymentMethod PaymentMethod
   cardId        String?       @db.Uuid
-  card          Card?         @relation(fields: [cardId], references: [id])
+  card          Card?         @relation(fields: [cardId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   bankId        String?       @db.Uuid
-  bank          Bank?         @relation(fields: [bankId], references: [id])
+  bank          Bank?         @relation(fields: [bankId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   outflowId     String        @db.Uuid
-  outflow       Outflow       @relation(fields: [outflowId], references: [id])
+  outflow       Outflow       @relation(fields: [outflowId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
@@ -157,7 +160,7 @@ model OutflowItem {
   unitOfMeasurement       String?
   unitaryValue            String?
   outflowId               String   @db.Uuid
-  outflow                 Outflow  @relation(fields: [outflowId], references: [id])
+  outflow                 Outflow  @relation(fields: [outflowId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
@@ -170,7 +173,7 @@ model OutflowInstallment {
   datetime    DateTime
   description String?
   outflowId   String   @db.Uuid
-  outflow     Outflow  @relation(fields: [outflowId], references: [id])
+  outflow     Outflow  @relation(fields: [outflowId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -190,7 +193,7 @@ model OutflowSeller {
   stateCode    String?
   zipCode      String?
   outflowId    String   @db.Uuid
-  outflow      Outflow  @relation(fields: [outflowId], references: [id])
+  outflow      Outflow  @relation(fields: [outflowId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -204,7 +207,7 @@ model Card {
   description           String?
   network               CardNetwork
   issuerBankId          String                  @db.Uuid
-  issuerBank            Bank                    @relation(fields: [issuerBankId], references: [id])
+  issuerBank            Bank                    @relation(fields: [issuerBankId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   dueDay                Int?                    @db.SmallInt
   closingDay            Int?                    @db.SmallInt
   limit                 Float?
@@ -222,7 +225,7 @@ model CreditCardInvoice {
   dueDate     DateTime
   paymentDate DateTime
   cardId      String   @db.Uuid
-  card        Card     @relation(fields: [cardId], references: [id])
+  card        Card     @relation(fields: [cardId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

@@ -5,16 +5,17 @@ export const Account = Type.Object({
   id: Type.String(),
   name: Type.String(),
   currency: Type.Enum($Enums.Currency),
+  createdById: Type.String(),
   createdAt: Type.String({ format: 'date-time' }),
   updatedAt: Type.String({ format: 'date-time' }),
 })
 
-export const CreateAccountInput = Type.Object({
-  name: Type.String(),
-  currency: Type.Enum($Enums.Currency),
-  ownerId: Type.String(),
-})
-
+export const CreateAccountInput = Type.Pick(Account, ['name', 'currency', 'createdById'])
+export const UpdateAccountInput = Type.Composite([
+  Type.Pick(Account, ['id']),
+  Type.Partial(Type.Pick(Account, ['name', 'currency'])),
+])
 
 export type Account = Static<typeof Account>
 export type CreateAccountInput = Static<typeof CreateAccountInput>
+export type UpdateAccountInput = Static<typeof UpdateAccountInput>

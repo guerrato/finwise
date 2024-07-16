@@ -43,6 +43,7 @@ CREATE TABLE "accounts" (
     "id" UUID NOT NULL,
     "name" TEXT NOT NULL,
     "currency" "Currency" NOT NULL,
+    "createdById" UUID NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -65,7 +66,7 @@ CREATE TABLE "userAccountRoles" (
 CREATE TABLE "banks" (
     "id" UUID NOT NULL,
     "name" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
+    "description" TEXT,
     "accountId" UUID NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -80,7 +81,8 @@ CREATE TABLE "inflows" (
     "datetime" TIMESTAMP(3) NOT NULL,
     "source" TEXT,
     "type" "InflowType" NOT NULL,
-    "accountId" TEXT NOT NULL,
+    "tithable" BOOLEAN NOT NULL DEFAULT true,
+    "accountId" UUID NOT NULL,
     "destinationBankId" UUID,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -228,40 +230,46 @@ CREATE TABLE "creditCardInvoices" (
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- AddForeignKey
-ALTER TABLE "userAccountRoles" ADD CONSTRAINT "userAccountRoles_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "accounts" ADD CONSTRAINT "accounts_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "userAccountRoles" ADD CONSTRAINT "userAccountRoles_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "userAccountRoles" ADD CONSTRAINT "userAccountRoles_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "banks" ADD CONSTRAINT "banks_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "userAccountRoles" ADD CONSTRAINT "userAccountRoles_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "accounts"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- AddForeignKey
+ALTER TABLE "banks" ADD CONSTRAINT "banks_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "accounts"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- AddForeignKey
+ALTER TABLE "inflows" ADD CONSTRAINT "inflows_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "accounts"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE "inflows" ADD CONSTRAINT "inflows_destinationBankId_fkey" FOREIGN KEY ("destinationBankId") REFERENCES "banks"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "outflows" ADD CONSTRAINT "outflows_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "outflows" ADD CONSTRAINT "outflows_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "accounts"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "outflowPaymentDetails" ADD CONSTRAINT "outflowPaymentDetails_cardId_fkey" FOREIGN KEY ("cardId") REFERENCES "cards"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "outflowPaymentDetails" ADD CONSTRAINT "outflowPaymentDetails_cardId_fkey" FOREIGN KEY ("cardId") REFERENCES "cards"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "outflowPaymentDetails" ADD CONSTRAINT "outflowPaymentDetails_bankId_fkey" FOREIGN KEY ("bankId") REFERENCES "banks"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "outflowPaymentDetails" ADD CONSTRAINT "outflowPaymentDetails_bankId_fkey" FOREIGN KEY ("bankId") REFERENCES "banks"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "outflowPaymentDetails" ADD CONSTRAINT "outflowPaymentDetails_outflowId_fkey" FOREIGN KEY ("outflowId") REFERENCES "outflows"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "outflowPaymentDetails" ADD CONSTRAINT "outflowPaymentDetails_outflowId_fkey" FOREIGN KEY ("outflowId") REFERENCES "outflows"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "outflowItems" ADD CONSTRAINT "outflowItems_outflowId_fkey" FOREIGN KEY ("outflowId") REFERENCES "outflows"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "outflowItems" ADD CONSTRAINT "outflowItems_outflowId_fkey" FOREIGN KEY ("outflowId") REFERENCES "outflows"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "outflowInstallments" ADD CONSTRAINT "outflowInstallments_outflowId_fkey" FOREIGN KEY ("outflowId") REFERENCES "outflows"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "outflowInstallments" ADD CONSTRAINT "outflowInstallments_outflowId_fkey" FOREIGN KEY ("outflowId") REFERENCES "outflows"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "outflowSellers" ADD CONSTRAINT "outflowSellers_outflowId_fkey" FOREIGN KEY ("outflowId") REFERENCES "outflows"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "outflowSellers" ADD CONSTRAINT "outflowSellers_outflowId_fkey" FOREIGN KEY ("outflowId") REFERENCES "outflows"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "cards" ADD CONSTRAINT "cards_issuerBankId_fkey" FOREIGN KEY ("issuerBankId") REFERENCES "banks"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "cards" ADD CONSTRAINT "cards_issuerBankId_fkey" FOREIGN KEY ("issuerBankId") REFERENCES "banks"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "creditCardInvoices" ADD CONSTRAINT "creditCardInvoices_cardId_fkey" FOREIGN KEY ("cardId") REFERENCES "cards"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "creditCardInvoices" ADD CONSTRAINT "creditCardInvoices_cardId_fkey" FOREIGN KEY ("cardId") REFERENCES "cards"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
