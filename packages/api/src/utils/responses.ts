@@ -1,4 +1,5 @@
 import { isEmpty } from './string'
+import { TSchema, Type } from '@sinclair/typebox'
 
 export type HTTPResponse<T> = {
   success: boolean
@@ -6,6 +7,14 @@ export type HTTPResponse<T> = {
   data?: T | null | undefined
   error?: string | null
 }
+
+export const HTTPResponse = <T extends TSchema>(schema: T) =>
+  Type.Object({
+    success: Type.Boolean(),
+    message: Type.Optional(Type.Union([Type.String(), Type.Null()])),
+    data: Type.Optional(Type.Union([schema, Type.String(), Type.Null()])),
+    error: Type.Optional(Type.Union([Type.String(), Type.Null()])),
+  })
 
 export type ResponseContent<T> = Omit<HTTPResponse<T>, 'success'>
 
