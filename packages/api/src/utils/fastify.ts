@@ -1,5 +1,5 @@
 import { TSchema } from '@sinclair/typebox'
-import { HTTPResponse } from './responses'
+import httpResponse, { HTTPResponse } from 'lib/responses'
 
 type SchemaRequest<T> = {
   body?: T | unknown
@@ -8,7 +8,7 @@ type SchemaRequest<T> = {
   headers?: T | unknown
 }
 
-export const getSchema = <Request extends unknown = never, Response extends TSchema = never>(
+export const getSchema = <Request, Response extends TSchema = never>(
   request: SchemaRequest<Request> = {},
   response: Response
 ) => {
@@ -21,7 +21,7 @@ export const getSchema = <Request extends unknown = never, Response extends TSch
       querystring,
       response: {
         '2xx': {
-          properties: HTTPResponse(response),
+          properties: httpResponse(response),
         },
       },
     },

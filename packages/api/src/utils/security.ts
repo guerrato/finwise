@@ -1,5 +1,5 @@
 import { hash, verify as argonVerify } from 'argon2'
-import * as jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 // import { JwtPayload, sign, verify as jwtVerify } from 'jsonwebtoken'
 import { isEmpty } from './string'
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto'
@@ -14,7 +14,7 @@ type PasswordValidation = {
 
 type TokenPayload = {
   sub: string
-  aud: string
+  aud?: string
 }
 
 const algorithm = 'aes-256-cbc'

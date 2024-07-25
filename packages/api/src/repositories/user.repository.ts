@@ -5,7 +5,7 @@ import { generateHash } from 'utils/security'
 import { isEmpty } from 'utils/string'
 
 export interface IUserRepository {
-  getUserByEmail(email: string): Promise<User>
+  getUserByEmail(email: string): Promise<User | null>
   getUserById(id: string): Promise<User>
   create(user: Prisma.UserCreateInput): Promise<User>
 }
@@ -34,8 +34,8 @@ export class UserRepository implements IUserRepository {
     })
   }
 
-  async getUserByEmail(email: string): Promise<User> {
-    return await this.dbContext.prisma.user.findUniqueOrThrow({
+  async getUserByEmail(email: string): Promise<User | null> {
+    return await this.dbContext.prisma.user.findUnique({
       where: {
         email,
       },
