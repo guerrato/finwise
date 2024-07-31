@@ -1,30 +1,42 @@
 import { TSchema } from '@sinclair/typebox'
-import httpResponse, { HTTPResponse } from 'lib/responses'
+import { getHTTPResponseSchema } from 'lib/responses'
+import { isEmpty } from './string'
 
-type SchemaRequest<T> = {
-  body?: T | unknown
-  querystring?: T | unknown
-  params?: T | unknown
-  headers?: T | unknown
+type SchemaRequest<T extends TSchema = never> = {
+  body?: T
+  querystring?: T
+  params?: T
+  headers?: T
 }
 
-export const getSchema = <Request, Response extends TSchema = never>(
+type Schema<Request extends TSchema> = SchemaRequest<Request> & {
+  response: { [key: string | number]: ReturnType<typeof getHTTPResponseSchema> }
+}
+
+export const getSchema = <Request extends TSchema, Response extends TSchema = never>(
   request: SchemaRequest<Request> = {},
   response: Response
 ) => {
   const { body, headers, params, querystring } = request
-  return {
-    schema: {
-      body,
-      headers,
-      params,
-      querystring,
-      response: {
-        '2xx': {
-          properties: httpResponse(response),
-        },
-      },
+
+  let schema: Schema<Request> = {
+    response: {
+      '2xx': getHTTPResponseSchema(response),
     },
-    attachValidation: true,
   }
+
+  if (!isEmpty(body)) {
+    schema.body = body
+  }
+  if (!isEmpty(headers)) {
+    schema.headers = headers
+  }
+  if (!isEmpty(params)) {
+    schema.params = params
+  }
+  if (!isEmpty(querystring)) {
+    schema.querystring = querystring
+  }
+
+  return { schema, attachValidation: true }
 }
