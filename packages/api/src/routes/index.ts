@@ -4,6 +4,7 @@
 import { FastifyPluginCallback } from 'fastify'
 import { v1Routes } from './v1'
 
+
 // const router = Router()
 
 // router.get('/', (_, res: Response) => res.json(httpResponse({ message: 'OK' })))

@@ -11,6 +11,7 @@ export const buildServer = async (): Promise<FastifyInstance> => {
     logger: useLogger,
   })
   try {
+    fastify.decorateRequest('user', null)
     fastify.register(routes)
 
     return fastify

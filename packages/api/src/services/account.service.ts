@@ -26,7 +26,7 @@ export class AccountService implements IAccountService {
     try {
       const { createdById } = account
 
-      const user = await this.userRepository.getUserById(createdById)
+      const user = await this.userRepository.getById(createdById)
 
       if (isEmpty(user)) {
         throw new Error('User not found')

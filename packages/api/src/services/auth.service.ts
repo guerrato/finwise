@@ -2,6 +2,7 @@ import { autoInjectable, inject } from 'tsyringe'
 import { IUserRepository } from 'repositories/user.repository'
 import { createToken, verifyHash } from 'utils/security'
 import { isEmpty } from 'utils/string'
+import { randomUUID } from 'crypto'
 
 export interface IAuthService {
   login(email: string, password: string, audienceIP?: string): Promise<{ token: string } | null>
@@ -16,7 +17,7 @@ export class AuthService implements IAuthService {
         throw new Error('SRV_VAR_MISSING: Internal Error: Variables missing')
       }
 
-      const user = await this.userRepository.getUserByEmail(email)
+      const user = await this.userRepository.getByEmail(email)
 
       if (user === null) {
         return null
@@ -30,7 +31,7 @@ export class AuthService implements IAuthService {
         return null
       }
 
-      const token = createToken({ sub: user.id, aud: audienceIP }, process.env.JWT_SECRET)
+      const token = createToken({ sub: randomUUID(), aud: audienceIP }, process.env.JWT_SECRET)
       
       // TODO: Implement refresh token
 

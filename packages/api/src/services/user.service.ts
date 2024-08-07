@@ -1,5 +1,5 @@
 import { autoInjectable, inject } from 'tsyringe'
-import { formatEmail, formatPersonName, isCompleteName, isEmail } from 'utils/string'
+import { formatEmail, formatPersonName, isCompleteName, isEmail, isEmpty } from 'utils/string'
 import { IUserRepository } from 'repositories/user.repository'
 import { EmailProvider } from 'providers/email.provider'
 import { CreateUserInput, User } from 'dtos/user.dto'
@@ -7,6 +7,7 @@ import { map } from 'utils/dto'
 
 export interface IUserService {
   create(user: CreateUserInput): Promise<User>
+  getById(id: string): Promise<User | null>
 }
 
 @autoInjectable()
@@ -24,7 +25,7 @@ export class UserService implements IUserService {
         throw new Error('Invalid email')
       }
 
-      const existingUser = await this.userRepository.getUserByEmail(email)
+      const existingUser = await this.userRepository.getByEmail(email)
 
       if (existingUser) {
         throw new Error('User already exists')
@@ -44,6 +45,16 @@ export class UserService implements IUserService {
     } catch (error) {
       throw new Error('Internal Error: Something went wrong. Please try again later.')
     }
+  }
+
+  async getById(id: string): Promise<User | null> {
+    const user = await this.userRepository.getById(id)
+
+    if (isEmpty(user)) {
+      return null
+    }
+
+    return map(user, User) as User
   }
 
   private createPassword(): string {

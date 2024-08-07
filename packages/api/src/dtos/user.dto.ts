@@ -13,7 +13,7 @@ export const User = Type.Object({
   verified: Type.Boolean(),
   createdAt: Type.String({ format: 'date-time'}),
   updatedAt: Type.String({ format: 'date-time'}),
-})
+}, { additionalProperties: false })
 
 export type CreateUserInput = Static<typeof CreateUserInput>
 export type User = Static<typeof User>

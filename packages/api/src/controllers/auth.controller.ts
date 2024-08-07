@@ -1,22 +1,19 @@
 import { autoInjectable, inject } from 'tsyringe'
 import 'dotenv/config'
 import httpResponse from '../lib/responses'
-import BaseController, { IBaseController } from './base.controller'
 import { IAuthService } from 'services/auth.service'
 import { isEmpty } from 'utils/string'
 
-import { AuthLogin } from 'schemas/auth.schema'
+import { AuthLogin } from 'dtos/auth.dto'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
-export interface IAuthController extends IBaseController {
+export interface IAuthController {
   login(request: FastifyRequest<{ Body: AuthLogin }>, reply: FastifyReply): Promise<void>
 }
 
 @autoInjectable()
-export class AuthController extends BaseController implements IAuthController {
-  constructor(@inject('IAuthService') private readonly authService: IAuthService) {
-    super()
-  }
+export class AuthController implements IAuthController {
+  constructor(@inject('IAuthService') private readonly authService: IAuthService) {}
 
   async login(req: FastifyRequest<{ Body: AuthLogin }>, reply: FastifyReply): Promise<void> {
     try {
