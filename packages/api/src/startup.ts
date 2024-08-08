@@ -16,6 +16,7 @@ import { IUserService, UserService } from 'services/user.service'
 import { AccountService, IAccountService } from 'services/account.service'
 import { AuthService, IAuthService } from 'services/auth.service'
 import { AuthController, IAuthController } from 'controllers/auth.controller'
+import { AccountController, IAccountController } from 'controllers/account.controller'
 
 export const setup = () => {
   // Resolve Singletons
@@ -38,4 +39,5 @@ export const setup = () => {
   // container.register<IInflowService>('IInflowService', InflowService)
 
   container.register<IAuthController>('IAuthController', AuthController)
+  container.register<IAccountController>('IAccountController', AccountController)
 }

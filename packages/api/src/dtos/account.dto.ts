@@ -8,9 +8,9 @@ export const Account = Type.Object({
   createdById: Type.String(),
   createdAt: Type.String({ format: 'date-time' }),
   updatedAt: Type.String({ format: 'date-time' }),
-})
+}, { additionalProperties: false })
 
-export const CreateAccountInput = Type.Pick(Account, ['name', 'currency', 'createdById'])
+export const CreateAccountInput = Type.Pick(Account, ['name', 'currency'])
 export const UpdateAccountInput = Type.Composite([
   Type.Pick(Account, ['id']),
   Type.Partial(Type.Pick(Account, ['name', 'currency'])),

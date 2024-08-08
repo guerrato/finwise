@@ -39,4 +39,3 @@ export class AuthController implements IAuthController {
   }
 }
 
-// export default new AuthController()

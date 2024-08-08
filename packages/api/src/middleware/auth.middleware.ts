@@ -1,11 +1,11 @@
 import { container } from 'tsyringe'
-import { FastifyReply, FastifyRequest } from 'fastify'
 import httpResponse from 'lib/responses'
 import { UserService } from 'services'
 import { getTokenPayload } from 'utils/security'
 import { isEmpty } from 'utils/string'
+import { FastifyReply, FastifyRequest } from 'fastify'
 
-export const authMiddleware = async (request: FastifyRequest, reply: FastifyReply, done: Function) => {
+export const authMiddleware = async (request: FastifyRequest, reply: FastifyReply) => {
   const userService = container.resolve(UserService)
   try {
     if (isEmpty(process.env.JWT_SECRET)) {
@@ -39,7 +39,6 @@ export const authMiddleware = async (request: FastifyRequest, reply: FastifyRepl
       role: payload.role,
     }
 
-    done()
   } catch (error) {
     reply.code(401).send(httpResponse({ error: (error as Error).message }))
   }

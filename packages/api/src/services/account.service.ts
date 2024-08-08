@@ -7,7 +7,7 @@ import { Account, CreateAccountInput, UpdateAccountInput } from 'dtos/account.dt
 import { UserAccountRole, UserRole } from '@prisma/client'
 
 export interface IAccountService {
-  create(account: CreateAccountInput): Promise<Account>
+  create(account: CreateAccountInput, createdById: string): Promise<Account>
   update(account: UpdateAccountInput): Promise<Account>
   delete(accountId: string): Promise<boolean>
   getById(accountId: string): Promise<Account>
@@ -22,17 +22,15 @@ export class AccountService implements IAccountService {
     @inject('IUserRepository') private readonly userRepository: IUserRepository
   ) {}
 
-  async create(account: CreateAccountInput): Promise<Account> {
+  async create(account: CreateAccountInput, createdById: string): Promise<Account> {
     try {
-      const { createdById } = account
-
+      console.log('roso', account)
       const user = await this.userRepository.getById(createdById)
-
       if (isEmpty(user)) {
         throw new Error('User not found')
       }
 
-      const createdAccount = await this.accountRepository.create(account)
+      const createdAccount = await this.accountRepository.create({ ...account, createdById })
       return map(createdAccount, Account)
     } catch (error) {
       throw new Error('Internal Error: Something went wrong. Please try again later.')
