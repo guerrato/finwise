@@ -43,8 +43,13 @@ export class AccountRepository implements IAccountRepository {
   }
 
   async delete(accountId: string): Promise<void> {
-    await this.dbContext.prisma.account.delete({
-      where: { id: accountId },
+    await this.dbContext.prisma.$transaction(async () => {
+      await this.dbContext.prisma.userAccountRole.deleteMany({
+        where: { accountId },
+      })
+      await this.dbContext.prisma.account.delete({
+        where: { id: accountId },
+      })
     })
   }
 

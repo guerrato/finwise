@@ -9,7 +9,7 @@ import { UserAccountRole, UserRole } from '@prisma/client'
 export interface IAccountService {
   create(account: CreateAccountInput, userId: string): Promise<Account>
   update(account: UpdateAccountInput, userId: string): Promise<Account>
-  delete(id: string): Promise<boolean>
+  delete(id: string, userId: string): Promise<boolean>
   getById(id: string, userId: string): Promise<Account>
   listByUserId(userId: string): Promise<Account[]>
   hasPermission(userId: string, accountId: string): Promise<boolean>
@@ -59,12 +59,16 @@ export class AccountService implements IAccountService {
     }
   }
 
-  async delete(id: string): Promise<boolean> {
+  async delete(id: string, userId: string): Promise<boolean> {
     try {
       const existingAccount = await this.accountRepository.getById(id)
 
       if (isEmpty(existingAccount)) {
         throw new Error('Account not found')
+      }
+
+      if (existingAccount.createdById !== userId) {
+        throw new Error('Unauthorized')
       }
 
       await this.accountRepository.delete(id)

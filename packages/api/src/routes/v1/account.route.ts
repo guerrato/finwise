@@ -1,6 +1,6 @@
 import { container } from 'tsyringe'
 import { AccountController } from 'controllers'
-import { Account, CreateAccountInput, GetAccountInput, UpdateAccountInput } from 'dtos/account.dto'
+import { Account, CreateAccountInput, DeleteAccountInput, GetAccountInput, UpdateAccountInput } from 'dtos/account.dto'
 import { authMiddleware } from 'middleware/auth.middleware'
 import { getSchema } from 'utils/fastify'
 import { FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify'
@@ -15,31 +15,28 @@ export const accountRoutes: FastifyPluginCallback = (fastify, _, done) => {
       ...getSchema({ body: CreateAccountInput }, Account),
       preHandler: (request, reply) => authMiddleware(request, reply),
     },
-    (request: FastifyRequest<{ Body: CreateAccountInput }>, reply: FastifyReply) => {
+    (request: FastifyRequest<{ Body: CreateAccountInput }>, reply: FastifyReply) =>
       accountController.create(request, reply)
-    }
   )
 
   fastify.get(
     '/',
     {
-      ...getSchema({ }, Type.Array(Account)),
+      ...getSchema({}, Type.Array(Account)),
       preHandler: (request, reply) => authMiddleware(request, reply),
     },
-    (request: FastifyRequest<{ Body: UpdateAccountInput }>, reply: FastifyReply) => {
+    (request: FastifyRequest<{ Body: UpdateAccountInput }>, reply: FastifyReply) =>
       accountController.list(request, reply)
-    }
   )
-  
+
   fastify.get(
     '/:id',
     {
-      ...getSchema({ params: GetAccountInput}, Type.Array(Account)),
+      ...getSchema({ params: GetAccountInput }, Account),
       preHandler: (request, reply) => authMiddleware(request, reply),
     },
-    (request: FastifyRequest<{ Params: GetAccountInput }>, reply: FastifyReply) => {
+    (request: FastifyRequest<{ Params: GetAccountInput }>, reply: FastifyReply) =>
       accountController.getById(request, reply)
-    }
   )
 
   fastify.put(
@@ -48,9 +45,18 @@ export const accountRoutes: FastifyPluginCallback = (fastify, _, done) => {
       ...getSchema({ body: UpdateAccountInput }, Account),
       preHandler: (request, reply) => authMiddleware(request, reply),
     },
-    (request: FastifyRequest<{ Body: UpdateAccountInput }>, reply: FastifyReply) => {
+    (request: FastifyRequest<{ Body: UpdateAccountInput }>, reply: FastifyReply) =>
       accountController.update(request, reply)
-    }
+  )
+  
+  fastify.delete(
+    '/:id',
+    {
+      ...getSchema({ params: DeleteAccountInput }, Account),
+      preHandler: (request, reply) => authMiddleware(request, reply),
+    },
+    (request: FastifyRequest<{ Params: DeleteAccountInput }>, reply: FastifyReply) =>
+      accountController.delete(request, reply)
   )
 
   done()
