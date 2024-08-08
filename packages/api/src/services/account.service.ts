@@ -7,10 +7,10 @@ import { Account, CreateAccountInput, UpdateAccountInput } from 'dtos/account.dt
 import { UserAccountRole, UserRole } from '@prisma/client'
 
 export interface IAccountService {
-  create(account: CreateAccountInput, createdById: string): Promise<Account>
-  update(account: UpdateAccountInput): Promise<Account>
-  delete(accountId: string): Promise<boolean>
-  getById(accountId: string): Promise<Account>
+  create(account: CreateAccountInput, userId: string): Promise<Account>
+  update(account: UpdateAccountInput, userId: string): Promise<Account>
+  delete(id: string): Promise<boolean>
+  getById(id: string, userId: string): Promise<Account>
   listByUserId(userId: string): Promise<Account[]>
   hasPermission(userId: string, accountId: string): Promise<boolean>
 }
@@ -22,22 +22,23 @@ export class AccountService implements IAccountService {
     @inject('IUserRepository') private readonly userRepository: IUserRepository
   ) {}
 
-  async create(account: CreateAccountInput, createdById: string): Promise<Account> {
+  async create(account: CreateAccountInput, userId: string): Promise<Account> {
     try {
-      console.log('roso', account)
-      const user = await this.userRepository.getById(createdById)
+      const user = await this.userRepository.getById(userId)
+
       if (isEmpty(user)) {
         throw new Error('User not found')
       }
 
-      const createdAccount = await this.accountRepository.create({ ...account, createdById })
+      const createdAccount = await this.accountRepository.create({ ...account, createdById: userId })
+
       return map(createdAccount, Account)
     } catch (error) {
       throw new Error('Internal Error: Something went wrong. Please try again later.')
     }
   }
 
-  async update(account: UpdateAccountInput): Promise<Account> {
+  async update(account: UpdateAccountInput, userId: string): Promise<Account> {
     try {
       const { id } = account
 
@@ -47,6 +48,10 @@ export class AccountService implements IAccountService {
         throw new Error('Account not found')
       }
 
+      if (!this.hasPermission(userId, id)) {
+        throw new Error('Unauthorized')
+      }
+
       const updatedAccount = await this.accountRepository.update(account)
       return map(updatedAccount, Account)
     } catch (error) {
@@ -54,26 +59,30 @@ export class AccountService implements IAccountService {
     }
   }
 
-  async delete(accountId: string): Promise<boolean> {
+  async delete(id: string): Promise<boolean> {
     try {
-      const existingAccount = await this.accountRepository.getById(accountId)
+      const existingAccount = await this.accountRepository.getById(id)
 
       if (isEmpty(existingAccount)) {
         throw new Error('Account not found')
       }
 
-      await this.accountRepository.delete(accountId)
+      await this.accountRepository.delete(id)
       return true
     } catch (error) {
       throw new Error('Internal Error: Something went wrong. Please try again later.')
     }
   }
 
-  async getById(accountId: string): Promise<Account> {
-    const account = await this.accountRepository.getWithRoleById(accountId)
+  async getById(id: string, userId: string): Promise<Account> {
+    const account = await this.accountRepository.getWithRoleById(id)
 
     if (isEmpty(account)) {
       throw new Error('Account not found')
+    }
+
+    if (!this.hasPermission(userId, id)) {
+      throw new Error('Unauthorized')
     }
 
     return map(account, Account)

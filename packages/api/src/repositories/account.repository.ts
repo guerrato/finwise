@@ -1,11 +1,12 @@
 import { autoInjectable, inject } from 'tsyringe'
 import { Prisma, Account } from '@prisma/client'
 import { DbProvider } from 'providers/db.provider'
-import { CreateAccountInput, UpdateAccountInput } from 'dtos/account.dto'
+
+type AccountUncheckedUpdateInput = Prisma.AccountUncheckedUpdateInput & { id: string }
 
 export interface IAccountRepository {
   create(account: Prisma.AccountUncheckedCreateInput): Promise<Account>
-  update(account: UpdateAccountInput): Promise<Account>
+  update(account: AccountUncheckedUpdateInput): Promise<Account>
   delete(accountId: string): Promise<void>
   listByUserId(userId: string): Promise<Account[]>
   getById(accountId: string): Promise<Account | null>
@@ -16,7 +17,7 @@ export interface IAccountRepository {
 export class AccountRepository implements IAccountRepository {
   constructor(@inject('DbProvider') private readonly dbContext: DbProvider) {}
 
-  async create(account: CreateAccountInput): Promise<Account> {
+  async create(account: Prisma.AccountUncheckedCreateInput): Promise<Account> {
     return await this.dbContext.prisma.account.create({
       data: {
         ...account,
@@ -34,7 +35,7 @@ export class AccountRepository implements IAccountRepository {
     })
   }
 
-  async update(account: UpdateAccountInput): Promise<Account> {
+  async update(account: AccountUncheckedUpdateInput): Promise<Account> {
     return await this.dbContext.prisma.account.update({
       where: { id: account.id },
       data: account,

@@ -1,7 +1,6 @@
-import 'reflect-metadata'
 import { container } from 'tsyringe'
 import { FastifyPluginCallback, FastifyRequest } from 'fastify'
-import { AuthController } from 'controllers/auth.controller'
+import { AuthController } from 'controllers'
 import { AuthLogin, AuthLoginSuccess } from 'dtos/auth.dto'
 import { getSchema } from 'utils/fastify'
 
